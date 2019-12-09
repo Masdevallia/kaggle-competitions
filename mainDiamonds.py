@@ -95,7 +95,7 @@ sample_submission.to_csv('./submissions/submission-diamonds-8.csv', index=False)
 
 # .......................................................................................................
 
-# Trying H2O:
+# H2O AutoML:
 h2o.init(nthreads = -1, max_mem_size = 6)
 
 # Preparing train data for H2O:

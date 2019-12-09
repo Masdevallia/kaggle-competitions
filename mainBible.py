@@ -16,16 +16,20 @@ sample_submission = pd.read_csv('./input/avila/sample_submission.csv')
 test_df = pd.read_csv('./input/avila/test_dataset.csv')
 training_df = pd.read_csv('./input/avila/training_dataset.csv')
 
+# .......................................................................................................
+
+# Data wrangling:
 X = training_df.drop(columns=['id','scribe'])
 y = training_df['scribe']
 
-# Data wrangling:
 rs = RobustScaler() # Scale features using statistics that are robust to outliers
 X_scaled = rs.fit_transform(X)
 
 # Split data:
 X_train_ns, X_test_ns, y_train_ns, y_test_ns = train_test_split(X,y,train_size=0.2) # not scaled
 X_train_scaled, X_test_scaled, y_train, y_test = train_test_split(X_scaled,y,train_size=0.2) # scaled
+
+# .......................................................................................................
 
 # Model testing:
 models = {'LogisticRegression': LogisticRegression(solver='lbfgs',multi_class='auto',max_iter=500),
@@ -61,6 +65,8 @@ for modelName, model in models.items():
 # 'DecisionTreeClassifier': {'accuracy': 0.86},
 # 'GradientBoostingClassifier': {'accuracy': 0.9}}
 
+# .......................................................................................................
+
 # RandomForestClassifier GridSearchCV:
 parameters = { 
     'n_estimators': [200,500,700,900,1100],
@@ -84,6 +90,8 @@ clf.fit(X, y)
 # print(clf.best_estimator_)
 # print(clf.best_score_) 
 # print(clf.best_params_)
+
+# .......................................................................................................
 
 # Predictions:
 Xtesting = test_df.drop(columns=['id'])

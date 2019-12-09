@@ -4,8 +4,8 @@
 
 The goal of this project was to participate in two Kaggle competitions to put into practice what we have learned about supervised machine learning methods.
 
-* Diamonds competition (regression problem): https://www.kaggle.com/c/diamonds-datamad1019/overview
-* Avila Bible competition (classification problem): https://www.kaggle.com/c/avila-bible-datamad1019/overview
+* [Diamonds competition](https://www.kaggle.com/c/diamonds-datamad1019/overview) (regression problem).
+* [Avila Bible competition](https://www.kaggle.com/c/avila-bible-datamad1019/overview) (classification problem).
 
 ### Diamonds competition:
 
