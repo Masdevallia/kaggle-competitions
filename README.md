@@ -19,11 +19,11 @@ In this competition we had to predict diamonds price based on their characterist
     * Scale features using statistics that are robust to outliers: RobustScaler().
 * Train-test split to divide the data in X_ train, X_test, y_train, y_test.
 * Model building, training and evaluation (R2 and RMSE): Linear Regression, SVR, K Neighbors Regressor, Random Forest Regressor, Decision Tree Regressor and Gradient Boosting Regressor.
-* H2OAutoML: Auto Machine Learning.
-* Hyperparameter tuning: GridSearchCV.
+* H2OAutoML: Automated machine learning: Automating the process of applying machine learning.
+* Hyperparameter tuning: GridSearchCV: Tune model parameters for improved performance: number of training steps, learning rate, initialization values and distribution, etc.
 * Call predict on the estimator with the best found parameters: Train selected model with all Kaggle train dataset and predict test.
 
-<p align="center"><img  src="https://github.com/Masdevallia/kaggle-competitions/blob/master/images/Masdevallia.png" width="650"></p>
+<p align="center"><img  src="https://github.com/Masdevallia/kaggle-competitions/blob/master/images/Masdevallia.png" width="700"></p>
 
 ### Avila Bible competition:
 
@@ -34,5 +34,5 @@ In this competition we had to predict who was the scribe of a verse from the Avi
 * Data examination.
 * Train-test split to divide the data in X_ train, X_test, y_train, y_test.
 * Model building, training and evaluation (Accuracy and Confusion matrix): Logistic Regression, SVC, K Neighbors Classifier, Random Forest Classifier, Decision Tree Classifier and Gradient Boosting Classifier.
-* Hyperparameter tuning: GridSearchCV.
+* Hyperparameter tuning: GridSearchCV: Tune model parameters for improved performance: number of training steps, learning rate, initialization values and distribution, etc.
 * Call predict on the estimator with the best found parameters: Train model with all Kaggle train dataset and predict test.
