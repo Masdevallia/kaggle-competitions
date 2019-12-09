@@ -10,6 +10,8 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.svm import SVR
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.metrics import mean_squared_error, r2_score
+import h2o
+from h2o.automl import H2OAutoML
 from src.clean import cleanDF
 from src.charts import featureImportance, caratChart
 
@@ -18,16 +20,23 @@ sample_submission = pd.read_csv('./input/diamonds/sample_submission.csv')
 test_df = pd.read_csv('./input/diamonds/test.csv')
 training_df = pd.read_csv('./input/diamonds/data.csv')
 
+# .......................................................................................................
+
+# Data wrangling:
 X = training_df.drop(columns=['price'])
 y = training_df['price']
 
-# Data wrangling:
 Xclean = cleanDF(X)
-rs = RobustScaler() # Scale features using statistics that are robust to outliers
+# Xclean = Xclean[['carat','clarity','color']]
+
+# Scale features using statistics that are robust to outliers:
+rs = RobustScaler() 
 X_scaled = rs.fit_transform(Xclean)
 
 # Split data:
 X_train_scaled, X_test_scaled, y_train, y_test = train_test_split(X_scaled,y,train_size=0.2)
+
+# .......................................................................................................
 
 # Model testing:
 models = {'LinearRegression': LinearRegression(),
@@ -43,12 +52,23 @@ for modelName, model in models.items():
     y_pred = clf.predict(X_test_scaled)
     metrics[modelName] = {'RMSE': round((mean_squared_error(y_test,y_pred))**0.5,2),'r2': round(r2_score(y_test,y_pred),2)}
 
+# With all features:
 #{'DecisionTreeRegressor': {'RMSE': 785.24, 'r2': 0.96},
 # 'GradientBoostingRegressor': {'RMSE': 654.08, 'r2': 0.97},
 # 'KNeighborsRegressor': {'RMSE': 959.8, 'r2': 0.94},
 # 'LinearRegression': {'RMSE': 1232.13, 'r2': 0.9},
 # 'RandomForestRegressor': {'RMSE': 590.53, 'r2': 0.98},
 # 'SVR': {'RMSE': 3888.72, 'r2': 0.05}}
+
+# Only with 'carat','clarity' and 'color':
+#{'LinearRegression': {'RMSE': 1256.69, 'r2': 0.9},
+# 'SVR': {'RMSE': 3738.45, 'r2': 0.14},
+# 'KNeighborsRegressor': {'RMSE': 684.68, 'r2': 0.97},
+# 'RandomForestRegressor': {'RMSE': 657.38, 'r2': 0.97},
+# 'DecisionTreeRegressor': {'RMSE': 742.01, 'r2': 0.97},
+# 'GradientBoostingRegressor': {'RMSE': 667.18, 'r2': 0.97}}
+
+# .......................................................................................................
 
 # RandomForestRegressor GridSearchCV:
 parameters = { 
@@ -71,7 +91,46 @@ test_dfclean = cleanDF(test_df)
 test_df_scaled = rs.transform(test_dfclean)
 finalpred = clf.predict(test_df_scaled) # Call predict on the estimator with the best found parameters
 sample_submission.price = finalpred
-sample_submission.to_csv('./submissions/submission-diamonds-1.csv', index=False)
+sample_submission.to_csv('./submissions/submission-diamonds-8.csv', index=False)
+
+# .......................................................................................................
+
+# Trying H2O:
+h2o.init(nthreads = -1, max_mem_size = 6)
+
+# Preparing train data for H2O:
+DFclean = Xclean.copy()
+DFclean['price'] = y
+rs = RobustScaler()
+numpy_clean_scaled = rs.fit_transform(DFclean[Xclean.columns])
+DFclean_scaled = pd.DataFrame(numpy_clean_scaled, columns= Xclean.columns)
+DFclean_scaled['price'] = DFclean['price']
+hf = h2o.H2OFrame(DFclean_scaled)
+
+y_columns = 'price'
+x_columns = list(Xclean.columns)
+
+# Fitting models (AutoML):
+aml_ti = H2OAutoML(max_runtime_secs= 300, seed= 1, nfolds=5,sort_metric='RMSE') # max_models= 50
+aml_ti.train(x = x_columns, y = y_columns, training_frame = hf)
+lb_ti = aml_ti.leaderboard
+# print(aml_ti.leader)
+
+# Preparing test data for H2O:
+test_df.drop(columns=['id'], inplace=True)
+test_dfclean = cleanDF(test_df)
+test_numpy_scaled = rs.transform(test_dfclean)
+test_df_scaled = pd.DataFrame(test_numpy_scaled, columns=test_dfclean.columns)
+test_df_scaled_h2o = h2o.H2OFrame(test_df_scaled)
+
+# Call predict on the estimator with the best found parameters:
+finalpred = aml_ti.leader.predict(test_df_scaled_h2o)
+sample_submission.price = finalpred.as_data_frame()
+sample_submission.to_csv('./submissions/submission-diamonds-8.csv', index=False)
+
+h2o.cluster().shutdown()
+
+# .......................................................................................................
 
 # Charts:
 featureImportance(X_scaled, y, Xclean)
