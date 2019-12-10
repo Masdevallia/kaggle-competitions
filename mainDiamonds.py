@@ -105,10 +105,13 @@ rs = RobustScaler()
 numpy_clean_scaled = rs.fit_transform(DFclean[Xclean.columns])
 DFclean_scaled = pd.DataFrame(numpy_clean_scaled, columns= Xclean.columns)
 DFclean_scaled['price'] = DFclean['price']
+# DFclean_scaled['carat2'] = [e**2 for e in DFclean_scaled.carat]
+DFclean_scaled['carat3'] = [e**3 for e in DFclean_scaled.carat]
 hf = h2o.H2OFrame(DFclean_scaled)
 
 y_columns = 'price'
-x_columns = list(Xclean.columns)
+# x_columns = list(Xclean.columns)
+x_columns = ['carat', 'cut', 'color', 'clarity', 'depth', 'table', 'carat2']
 
 # Fitting models (AutoML):
 aml_ti = H2OAutoML(max_runtime_secs= 300, seed= 1, nfolds=5,sort_metric='RMSE') # max_models= 50
@@ -121,12 +124,14 @@ test_df.drop(columns=['id'], inplace=True)
 test_dfclean = cleanDF(test_df)
 test_numpy_scaled = rs.transform(test_dfclean)
 test_df_scaled = pd.DataFrame(test_numpy_scaled, columns=test_dfclean.columns)
+# test_df_scaled['carat2'] = [e**2 for e in test_df_scaled.carat]
+test_df_scaled['carat3'] = [e**3 for e in test_df_scaled.carat]
 test_df_scaled_h2o = h2o.H2OFrame(test_df_scaled)
 
 # Call predict on the estimator with the best found parameters:
 finalpred = aml_ti.leader.predict(test_df_scaled_h2o)
 sample_submission.price = finalpred.as_data_frame()
-sample_submission.to_csv('./submissions/submission-diamonds-8.csv', index=False)
+sample_submission.to_csv('./submissions/submission-diamonds-10.csv', index=False)
 
 h2o.cluster().shutdown()
 
