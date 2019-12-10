@@ -17,6 +17,7 @@ In this competition we had to predict diamonds price based on their characterist
     * Convert categorical variables (cut, color, clarity) to numbers with ordinal encoding.
     * Drop highly correlated features: x, y, z.
     * Scale features using statistics that are robust to outliers: RobustScaler().
+    * Add polynomial terms: carat quadratic and cubic term. To test for quadratic/cubic effects and to try to improve models performance, carat was squared/cubed and entered as another predictor in some models. Carat was squared/cubed after standardization to reduce the correlation between the linear and quadratic/cubic terms.
 * Train-test split to divide the data in X_ train, X_test, y_train, y_test.
 * Model building, training and evaluation (R2 and RMSE): Linear Regression, SVR, K Neighbors Regressor, Random Forest Regressor, Decision Tree Regressor and Gradient Boosting Regressor.
 * H2OAutoML: Automated machine learning: Automating the process of applying machine learning.
